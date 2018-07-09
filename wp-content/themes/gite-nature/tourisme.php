@@ -10,40 +10,32 @@ get_header();
 
 
 <section id="tourism" class="container">
-    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
-    <div id="map" style="height: 100vh;"></div>
+    <input id="info-tourism-searchbar" type="text" placeholder="Search Box">
+    <div id="info-tourism-map" style="height: 100vh;"></div>
 </section>
 <script>
-    // This example adds a search box to a map, using the Google Place Autocomplete
-    // feature. People can enter geographical searches. The search box will return a
-    // pick list containing a mix of places and predicted search terms.
-
-    // This example requires the Places library. Include the libraries=places
-    // parameter when you first load the API. For example:
-    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+    function pinSymbol(color) {
+        return {
+            path: 'm -0.20481678,-32.067469 c -6.12035052,6e-5 -11.08185822,4.96157 -11.08192522,11.08192 0.006,4.36783 2.5770447,8.32474 6.5657057,10.104791 L 0.00210722,0.01028153 4.7690712,-11.09657 c 3.740005,-1.87849 6.1027088,-5.703729 6.1080358,-9.888979 -6.9e-5,-6.12035 -4.9615748,-11.08185 -11.08192378,-11.08192 z m 0.206924,5.07978 c 3.31488698,10e-6 6.00213198,2.68726 6.00213998,6.00214 -9e-6,3.31489 -2.687253,6.00213 -6.00213998,6.002139 -3.31488452,-9e-6 -6.00212852,-2.687249 -6.00213752,-6.002139 9e-6,-3.31488 2.687253,-6.00213 6.00213752,-6.00214 z',
+            fillColor: color,
+            fillOpacity: 1,
+            strokeWidth: 0,
+            strokeWeight: 0,
+            scale: 1
+        };
+    }
 
     function initAutocomplete() {
-        var map = new google.maps.Map(document.getElementById('map'), {
+        let map = new google.maps.Map(document.getElementById('info-tourism-map'), {
             center: {lat: 47.966659, lng: 5.030354},
             zoom: 15,
             mapTypeId: 'satellite'
         });
+        let searchBox = new google.maps.places.SearchBox(document.getElementById('info-tourism-searchbar'));
 
-        // Create the search box and link it to the UI element.
-        var input = document.getElementById('pac-input');
-        var searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-        // Bias the SearchBox results towards current map's viewport.
-        map.addListener('bounds_changed', function() {
-            searchBox.setBounds(map.getBounds());
-        });
-
-        var markers = [];
-        // Listen for the event fired when the user selects a prediction and retrieve
-        // more details for that place.
+        let markers = [];
         searchBox.addListener('places_changed', function() {
-            var places = searchBox.getPlaces();
+            let places = searchBox.getPlaces();
             if (places.length === 0)
                 return;
             markers.forEach(function(marker) {
@@ -51,34 +43,22 @@ get_header();
             });
             markers = [];
 
-            var bounds = new google.maps.LatLngBounds();
+            let bounds = new google.maps.LatLngBounds();
             places.forEach(function(place) {
                 if (!place.geometry) {
                     console.log("Returned place contains no geometry");
                     return;
                 }
-                var icon = {
-                    url: place.icon,
-                    size: new google.maps.Size(71, 71),
-                    origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(17, 34),
-                    scaledSize: new google.maps.Size(25, 25)
-                };
-
-                // Create a marker for each place.
                 markers.push(new google.maps.Marker({
                     map: map,
-                    icon: icon,
+                    icon: pinSymbol("#FFF"),
                     title: place.name,
                     position: place.geometry.location
                 }));
-
-                if (place.geometry.viewport) {
-                    // Only geocodes have viewport.
+                if (place.geometry.viewport)
                     bounds.union(place.geometry.viewport);
-                } else {
+                else
                     bounds.extend(place.geometry.location);
-                }
             });
             map.fitBounds(bounds);
         });
